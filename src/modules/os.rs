@@ -1,6 +1,8 @@
+use std::io;
+
 use crate::colors;
 use crate::constants::Layout;
-use crate::utils::unknown;
+use crate::utils;
 
 use super::Module;
 
@@ -16,18 +18,14 @@ impl Os {
     pub fn new(name: String) -> Self {
         Self {
             label: "OS",
-            ok: unknown(&name).is_none(),
+            ok: utils::unknown(&name).is_none(),
             name,
         }
     }
 }
 
 impl Module for Os {
-    fn render<W: std::io::prelude::Write>(
-        &self,
-        writer: &mut W,
-        gap: usize,
-    ) -> std::io::Result<()> {
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
         let padding = Layout::PADDING;
         let label = colors::label(self.label, self.ok);
         let name = colors::info(&self.name, self.ok);

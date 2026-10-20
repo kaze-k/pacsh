@@ -1,4 +1,4 @@
-use crate::types::RGB;
+use crate::types::Rgb;
 
 pub struct Layout;
 impl Layout {
@@ -16,10 +16,10 @@ impl Icon {
 
 pub struct Color;
 impl Color {
-    pub const BLUE: RGB = (96, 165, 250);
-    pub const CYAN: RGB = (45, 212, 191);
-    pub const ORANGE: RGB = (255, 165, 0);
-    pub const PINK: RGB = (255, 105, 180);
+    pub const BLUE: Rgb = (96, 165, 250);
+    pub const CYAN: Rgb = (45, 212, 191);
+    pub const ORANGE: Rgb = (255, 165, 0);
+    pub const PINK: Rgb = (255, 105, 180);
 }
 
 pub struct Border;

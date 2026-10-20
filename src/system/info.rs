@@ -1,8 +1,5 @@
 use nix::unistd::{self, User};
-use std::{
-    fs,
-    io::{stderr, stdin, stdout},
-};
+use std::{fs, io};
 
 pub struct Info;
 
@@ -26,9 +23,9 @@ impl Info {
     }
 
     pub fn tty_name(&self) -> String {
-        unistd::ttyname(stdin())
-            .or_else(|_| unistd::ttyname(stdout()))
-            .or_else(|_| unistd::ttyname(stderr()))
+        unistd::ttyname(io::stdin())
+            .or_else(|_| unistd::ttyname(io::stdout()))
+            .or_else(|_| unistd::ttyname(io::stderr()))
             .ok()
             .map(|path| path.to_string_lossy().into_owned())
             .unwrap_or_else(|| "unknown".to_string())
@@ -43,7 +40,7 @@ impl Info {
 
                 (!entry.is_null()).then_some(entry)
             })
-            .filter(|entry| (**entry).ut_type == libc::USER_PROCESS as i16)
+            .filter(|entry| (**entry).ut_type == libc::USER_PROCESS)
             .count();
 
             libc::endutxent();

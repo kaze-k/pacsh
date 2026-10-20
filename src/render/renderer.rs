@@ -101,7 +101,7 @@ impl Renderer {
         output.flush()
     }
 
-    fn width<M: Module>(&self, lines: &Vec<M>, gap: usize) -> usize {
+    fn width<M: Module>(&self, lines: &[M], gap: usize) -> usize {
         lines
             .iter()
             .map(|line| line.width(gap))
@@ -109,7 +109,7 @@ impl Renderer {
             .unwrap_or_default()
     }
 
-    fn gap<M: Module>(&self, lines: &Vec<M>) -> usize {
+    fn gap<M: Module>(&self, lines: &[M]) -> usize {
         let max_gap = lines
             .iter()
             .map(|line| line.label().unwrap_or_default().width())

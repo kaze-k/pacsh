@@ -1,8 +1,8 @@
 use std::fmt::Display;
-use std::io::{self, Write};
+use std::io;
 
 use crate::constants::Color;
-use crate::types::RGB;
+use crate::types::Rgb;
 
 use owo_colors::{OwoColorize, Style, Styled};
 
@@ -78,7 +78,7 @@ pub fn info<T: Display>(text: T, ok: bool) -> Styled<T> {
     style.style(text)
 }
 
-fn color_at(i: usize, len: usize, start: RGB, end: RGB) -> RGB {
+fn color_at(i: usize, len: usize, start: Rgb, end: Rgb) -> Rgb {
     let t = if len <= 1 {
         0.0
     } else {
@@ -92,24 +92,24 @@ fn color_at(i: usize, len: usize, start: RGB, end: RGB) -> RGB {
     (r as u8, g as u8, b as u8)
 }
 
-pub fn gradient_char<W: Write>(
+pub fn gradient_char<W: io::Write>(
     writer: &mut W,
     ch: char,
     i: usize,
     len: usize,
-    start: RGB,
-    end: RGB,
+    start: Rgb,
+    end: Rgb,
 ) -> io::Result<()> {
     let (r, g, b) = color_at(i, len, start, end);
 
     write!(writer, "{}", ch.truecolor(r, g, b))
 }
 
-pub fn gradient_string<W: Write>(
+pub fn gradient_string<W: io::Write>(
     writer: &mut W,
     string: &str,
-    start: RGB,
-    end: RGB,
+    start: Rgb,
+    end: Rgb,
 ) -> io::Result<()> {
     let chars = string.chars().count();
 

@@ -1,8 +1,8 @@
-use std::io::{self, Write};
+use std::io;
 
 use crate::colors;
 use crate::constants::Layout;
-use crate::utils::unknown;
+use crate::utils;
 
 use super::Module;
 
@@ -18,8 +18,8 @@ pub struct Identity {
 
 impl Identity {
     pub fn new(username: String, hostname: String) -> Self {
-        let username_ok = unknown(&username).is_none();
-        let hostname_ok = unknown(&hostname).is_none();
+        let username_ok = utils::unknown(&username).is_none();
+        let hostname_ok = utils::unknown(&hostname).is_none();
 
         Self {
             label: if username_ok && hostname_ok {
@@ -36,7 +36,7 @@ impl Identity {
 }
 
 impl Module for Identity {
-    fn render<W: Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
         let padding = Layout::PADDING;
         let status = colors::status(self.label, self.username_ok && self.hostname_ok);
         let session = colors::session("SESSION", self.username_ok && self.hostname_ok);

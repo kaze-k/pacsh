@@ -1,4 +1,4 @@
-use std::io::{self, Write};
+use std::io;
 
 use super::Module;
 
@@ -12,7 +12,7 @@ impl Blank {
 }
 
 impl Module for Blank {
-    fn render<W: Write>(&self, _writer: &mut W, _gap: usize) -> io::Result<()> {
+    fn render<W: io::Write>(&self, _writer: &mut W, _gap: usize) -> io::Result<()> {
         Ok(())
     }
 

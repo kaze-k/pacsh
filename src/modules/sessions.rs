@@ -1,8 +1,8 @@
-use std::io::{self, Write};
+use std::io;
 
 use crate::colors;
 use crate::constants::Layout;
-use crate::utils::unknown;
+use crate::utils;
 
 use super::Module;
 
@@ -18,14 +18,14 @@ impl Sessions {
     pub fn new(count: String) -> Self {
         Self {
             label: "SESSIONS",
-            ok: unknown(&count).is_none(),
+            ok: utils::unknown(&count).is_none(),
             count,
         }
     }
 }
 
 impl Module for Sessions {
-    fn render<W: Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
         let padding = Layout::PADDING;
         let label = colors::label(self.label, self.ok);
         let count = colors::info(&self.count, self.ok);

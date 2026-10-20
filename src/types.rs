@@ -1,1 +1,1 @@
-pub type RGB = (u8, u8, u8);
+pub type Rgb = (u8, u8, u8);

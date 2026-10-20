@@ -1,8 +1,8 @@
-use super::{Access, Blank, From, Identity, Os, To, Tty, Sessions};
-use std::io::{self, Write};
+use super::{Access, Blank, From, Identity, Os, Sessions, To, Tty};
+use std::io;
 
 pub trait Module {
-    fn render<W: Write>(&self, writer: &mut W, gap: usize) -> io::Result<()>;
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()>;
     fn width(&self, gap: usize) -> usize;
     fn label(&self) -> Option<&str>;
 }
@@ -19,11 +19,7 @@ pub enum ModuleItem {
 }
 
 impl Module for ModuleItem {
-    fn render<W: std::io::prelude::Write>(
-        &self,
-        writer: &mut W,
-        gap: usize,
-    ) -> std::io::Result<()> {
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
         match self {
             Self::Access(module) => module.render(writer, gap),
             Self::Blank(module) => module.render(writer, gap),

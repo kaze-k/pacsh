@@ -1,4 +1,4 @@
-use std::io::{self, Write};
+use std::io;
 
 use crate::colors;
 use crate::constants::Layout;
@@ -30,7 +30,7 @@ impl Access {
 }
 
 impl Module for Access {
-    fn render<W: Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
         let message = self.message();
 
         let padding = Layout::PADDING;

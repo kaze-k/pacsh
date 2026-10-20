@@ -1,8 +1,8 @@
-use std::io::{self, Write};
+use std::io;
 
 use crate::colors;
 use crate::constants::Layout;
-use crate::utils::unknown;
+use crate::utils;
 
 use super::Module;
 
@@ -20,16 +20,16 @@ impl To {
     pub fn new(ip: String, port: String) -> Self {
         Self {
             label: "TO",
-            ip_ok: unknown(&ip).is_none(),
-            port_ok: unknown(&port).is_none(),
-            ip: ip,
-            port: port,
+            ip_ok: utils::unknown(&ip).is_none(),
+            port_ok: utils::unknown(&port).is_none(),
+            ip,
+            port,
         }
     }
 }
 
 impl Module for To {
-    fn render<W: Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
+    fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()> {
         let padding = Layout::PADDING;
         let label = colors::label(&self.label, self.ip_ok && self.port_ok);
         let ip = colors::info(&self.ip, self.ip_ok);
