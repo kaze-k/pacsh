@@ -7,13 +7,13 @@ use super::Module;
 
 use unicode_width::UnicodeWidthStr;
 
-pub struct Access {
+pub(crate) struct Access {
     label: &'static str,
     is_ssh: bool,
 }
 
 impl Access {
-    pub fn new(is_ssh: bool) -> Self {
+    pub(crate) fn new(is_ssh: bool) -> Self {
         Self {
             label: if is_ssh { "[ok]" } else { "[fail]" },
             is_ssh,
@@ -46,5 +46,52 @@ impl Module for Access {
 
     fn label(&self) -> Option<&str> {
         Some(self.label)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tests::render_to_string;
+
+    #[test]
+    fn ssh_login_reports_success() {
+        let module = Access::new(true);
+        let expected = format!(
+            "    {:<10}{}",
+            colors::status("[ok]", true),
+            colors::message("SSH LOGIN SUCCESSFUL", true),
+        );
+
+        assert_eq!(module.label(), Some("[ok]"));
+        assert_eq!(module.width(10), 34);
+        assert_eq!(render_to_string(&module, 10), expected);
+    }
+
+    #[test]
+    fn non_ssh_login_reports_failure() {
+        let module = Access::new(false);
+        let expected = format!(
+            "    {:<10}{}",
+            colors::status("[fail]", false),
+            colors::message("SSH LOGIN FAILED", false),
+        );
+
+        assert_eq!(module.label(), Some("[fail]"));
+        assert_eq!(module.width(10), 30);
+        assert_eq!(render_to_string(&module, 10), expected);
+    }
+
+    #[test]
+    fn zero_gap_keeps_status_and_message_separate() {
+        let module = Access::new(true);
+        let expected = format!(
+            "    {}{}",
+            colors::status("[ok]", true),
+            colors::message("SSH LOGIN SUCCESSFUL", true),
+        );
+
+        assert_eq!(module.width(0), 28);
+        assert_eq!(render_to_string(&module, 0), expected);
     }
 }

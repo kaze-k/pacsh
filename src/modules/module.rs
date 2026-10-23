@@ -1,13 +1,13 @@
 use super::{Access, Blank, From, Identity, Os, Sessions, To, Tty};
 use std::io;
 
-pub trait Module {
+pub(crate) trait Module {
     fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()>;
     fn width(&self, gap: usize) -> usize;
     fn label(&self) -> Option<&str>;
 }
 
-pub enum ModuleItem {
+pub(crate) enum ModuleItem {
     Access(Access),
     Blank(Blank),
     From(From),

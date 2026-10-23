@@ -6,6 +6,9 @@ mod system;
 mod types;
 mod utils;
 
+#[cfg(test)]
+mod tests;
+
 use std::io;
 
 use modules::{Access, Blank, From, Identity, ModuleItem, Os, Sessions, To, Tty};
