@@ -140,14 +140,30 @@ mod tests {
 
     #[test]
     fn tty_name_matches_tty_command() {
-        let (stdout, _) = run_command("tty", &[], &[0]);
-        let expected = stdout.trim_end_matches(['\n', '\r']);
+        use std::io::IsTerminal;
 
-        assert_eq!(
-            Info::new().tty_name(),
-            expected,
-            "tty_name() should match the `tty` command"
-        );
+        let (stdout, status) = run_command("tty", &[], &[0, 1]);
+        let expected = stdout.trim_end_matches(['\n', '\r']);
+        match status {
+            0 => assert_eq!(
+                Info::new().tty_name(),
+                expected,
+                "tty_name() should match the `tty` path"
+            ),
+            1 if io::stdout().is_terminal() || io::stderr().is_terminal() => {
+                assert_ne!(
+                    Info::new().tty_name(),
+                    "",
+                    "tty_name() should fall back to stdout or stderr"
+                );
+            }
+            1 => assert_eq!(
+                Info::new().tty_name(),
+                "unknown",
+                "tty_name() should be unknown without a terminal"
+            ),
+            _ => unreachable!("run_command only allows exit codes 0 and 1"),
+        }
     }
 
     #[test]
