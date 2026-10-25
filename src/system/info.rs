@@ -1,17 +1,17 @@
 use nix::unistd::{self, User};
 use std::{
-    fs,
-    io::{stderr, stdin, stdout},
+    fs::File,
+    io::{self, BufRead, BufReader},
 };
 
-pub struct Info;
+pub(crate) struct Info;
 
 impl Info {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self
     }
 
-    pub fn username(&self) -> String {
+    pub(crate) fn username(&self) -> String {
         User::from_uid(unistd::getuid())
             .ok()
             .flatten()
@@ -19,22 +19,22 @@ impl Info {
             .unwrap_or_else(|| "unknown".to_string())
     }
 
-    pub fn hostname(&self) -> String {
+    pub(crate) fn hostname(&self) -> String {
         unistd::gethostname()
             .map(|hostname| hostname.to_string_lossy().into_owned())
             .unwrap_or_else(|_| "unknown".to_string())
     }
 
-    pub fn tty_name(&self) -> String {
-        unistd::ttyname(stdin())
-            .or_else(|_| unistd::ttyname(stdout()))
-            .or_else(|_| unistd::ttyname(stderr()))
+    pub(crate) fn tty_name(&self) -> String {
+        unistd::ttyname(io::stdin())
+            .or_else(|_| unistd::ttyname(io::stdout()))
+            .or_else(|_| unistd::ttyname(io::stderr()))
             .ok()
             .map(|path| path.to_string_lossy().into_owned())
             .unwrap_or_else(|| "unknown".to_string())
     }
 
-    pub fn session_count(&self) -> String {
+    pub(crate) fn session_count(&self) -> String {
         let count = unsafe {
             libc::setutxent();
 
@@ -43,7 +43,7 @@ impl Info {
 
                 (!entry.is_null()).then_some(entry)
             })
-            .filter(|entry| (**entry).ut_type == libc::USER_PROCESS as i16)
+            .filter(|entry| (**entry).ut_type == libc::USER_PROCESS)
             .count();
 
             libc::endutxent();
@@ -57,15 +57,28 @@ impl Info {
         }
     }
 
-    pub fn os_name(&self) -> String {
-        fs::read_to_string("/etc/os-release")
-            .map(|content| {
-                content
-                    .lines()
-                    .find_map(|line| line.strip_prefix("PRETTY_NAME="))
-                    .map(|v| v.trim_matches('"').to_string())
-                    .unwrap_or_else(|| "unknown".to_string())
-            })
-            .unwrap_or_else(|_| "unknown".to_string())
+    pub(crate) fn os_name(&self) -> String {
+        let Ok(file) = File::open("/etc/os-release") else {
+            return "unknown".to_string();
+        };
+
+        let mut reader = BufReader::new(file);
+        let mut line = String::new();
+
+        loop {
+            line.clear();
+
+            let Ok(bytes) = reader.read_line(&mut line) else {
+                return "unknown".to_string();
+            };
+
+            if bytes == 0 {
+                return "unknown".to_string();
+            }
+
+            if let Some(value) = line.strip_prefix("PRETTY_NAME=") {
+                return value.trim().trim_matches('"').to_string();
+            }
+        }
     }
 }

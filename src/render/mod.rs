@@ -1,4 +1,4 @@
 mod borderer;
 mod renderer;
 
-pub use renderer::Renderer;
+pub(crate) use renderer::Renderer;

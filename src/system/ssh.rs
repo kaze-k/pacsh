@@ -1,15 +1,15 @@
 use std::env;
 
-pub struct Ssh {
-    pub is_ssh: bool,
-    pub client_ip: String,
-    pub client_port: String,
-    pub server_ip: String,
-    pub server_port: String,
+pub(crate) struct Ssh {
+    pub(crate) is_ssh: bool,
+    pub(crate) client_ip: String,
+    pub(crate) client_port: String,
+    pub(crate) server_ip: String,
+    pub(crate) server_port: String,
 }
 
 impl Ssh {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self {
             is_ssh: false,
             client_ip: "unknown".to_string(),
@@ -19,7 +19,7 @@ impl Ssh {
         }
     }
 
-    pub fn parse(mut self) -> Self {
+    pub(crate) fn parse(mut self) -> Self {
         let Some(connection) = env::var_os("SSH_CONNECTION") else {
             return self;
         };

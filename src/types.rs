@@ -1,1 +1,1 @@
-pub type RGB = (u8, u8, u8);
+pub(crate) type Rgb = (u8, u8, u8);

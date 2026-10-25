@@ -1,18 +1,18 @@
-use std::io::{self, Write};
+use std::io;
 
 use super::Module;
 
 #[derive(Clone, Copy)]
-pub struct Blank;
+pub(crate) struct Blank;
 
 impl Blank {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self
     }
 }
 
 impl Module for Blank {
-    fn render<W: Write>(&self, _writer: &mut W, _gap: usize) -> io::Result<()> {
+    fn render<W: io::Write>(&self, _writer: &mut W, _gap: usize) -> io::Result<()> {
         Ok(())
     }
 
@@ -22,5 +22,20 @@ impl Module for Blank {
 
     fn label(&self) -> Option<&str> {
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::tests::render_to_string;
+
+    #[test]
+    fn blank_renders_nothing() {
+        let module = Blank::new();
+
+        assert_eq!(module.label(), None);
+        assert_eq!(module.width(10), 0);
+        assert_eq!(render_to_string(&module, 10), "");
     }
 }

@@ -1,5 +1,5 @@
 mod info;
 mod ssh;
 
-pub use info::Info;
-pub use ssh::Ssh;
+pub(crate) use info::Info;
+pub(crate) use ssh::Ssh;

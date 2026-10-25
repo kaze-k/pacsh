@@ -1,50 +1,66 @@
-use std::io::{self, Write};
+use std::io;
 
-use crate::colors::{self, gradient_string};
+use crate::colors;
 use crate::constants::{Border, Color, Icon, Layout};
-use crate::utils::repeat;
+use crate::utils;
 
 use unicode_width::UnicodeWidthChar;
 
-pub struct Borderer;
+pub(crate) struct Borderer;
 
 impl Borderer {
-    pub fn new() -> Self {
+    pub(crate) fn new() -> Self {
         Self
     }
 
-    pub fn top<W: Write>(&self, writer: &mut W, width: usize) -> io::Result<()> {
-        let count =
-            (width + Layout::PADDING) - 2 - 1 - Icon::PACMAN.width().unwrap_or_default() - 1;
+    pub(crate) fn top<W: io::Write>(&self, writer: &mut W, width: usize) -> io::Result<()> {
+        let count = (width + Layout::PADDING)
+            - 2
+            - 1
+            - Icon::PACMAN
+                .width()
+                .expect("failed to get PACMAN icon width: width should be available")
+            - 1;
 
         let string = format!(
             "{}{} {} {}{}",
             Border::TOP_LEFT,
-            repeat(Border::HORIZONTAL, 2),
+            utils::repeat(Border::HORIZONTAL, 2),
             Icon::PACMAN,
-            repeat(Border::HORIZONTAL, count),
+            utils::repeat(Border::HORIZONTAL, count),
             Border::TOP_RIGHT
         );
 
-        gradient_string(writer, &string, Color::BLUE, Color::PINK)
+        colors::gradient_string(writer, &string, Color::BLUE, Color::PINK)
     }
 
-    pub fn bottom<W: Write>(&self, writer: &mut W, width: usize) -> io::Result<()> {
-        let count = (width + Layout::PADDING) - 2 - 1 - Icon::GHOST.width().unwrap_or_default() - 1;
+    pub(crate) fn bottom<W: io::Write>(&self, writer: &mut W, width: usize) -> io::Result<()> {
+        let count = (width + Layout::PADDING)
+            - 2
+            - 1
+            - Icon::GHOST
+                .width()
+                .expect("failed to get GHOST icon width: width should be available")
+            - 1;
 
         let string = format!(
             "{}{} {} {}{}",
             Border::BOTTOM_LEFT,
-            repeat(Border::HORIZONTAL, count),
+            utils::repeat(Border::HORIZONTAL, count),
             Icon::GHOST,
-            repeat(Border::HORIZONTAL, 2),
+            utils::repeat(Border::HORIZONTAL, 2),
             Border::BOTTOM_RIGHT
         );
 
         colors::gradient_string(writer, &string, Color::ORANGE, Color::CYAN)
     }
 
-    pub fn left<W: Write>(&self, writer: &mut W, index: usize, height: usize) -> io::Result<()> {
+    pub(crate) fn left<W: io::Write>(
+        &self,
+        writer: &mut W,
+        index: usize,
+        height: usize,
+    ) -> io::Result<()> {
         colors::gradient_char(
             writer,
             Border::VERTICAL,
@@ -55,7 +71,12 @@ impl Borderer {
         )
     }
 
-    pub fn right<W: Write>(&self, writer: &mut W, index: usize, height: usize) -> io::Result<()> {
+    pub(crate) fn right<W: io::Write>(
+        &self,
+        writer: &mut W,
+        index: usize,
+        height: usize,
+    ) -> io::Result<()> {
         colors::gradient_char(
             writer,
             Border::VERTICAL,
@@ -64,5 +85,138 @@ impl Borderer {
             Color::PINK,
             Color::CYAN,
         )
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn top_border_has_exact_layout_and_colors() {
+        let expected_top = concat!(
+            "\x1b[38;2;96;165;250m╭\x1b[39m",
+            "\x1b[38;2;106;161;245m─\x1b[39m",
+            "\x1b[38;2;117;157;240m─\x1b[39m",
+            "\x1b[38;2;127;153;236m \x1b[39m",
+            "\x1b[38;2;138;149;231m󰮯\x1b[39m",
+            "\x1b[38;2;149;145;226m \x1b[39m",
+            "\x1b[38;2;159;141;222m─\x1b[39m",
+            "\x1b[38;2;170;137;217m─\x1b[39m",
+            "\x1b[38;2;180;133;212m─\x1b[39m",
+            "\x1b[38;2;191;129;208m─\x1b[39m",
+            "\x1b[38;2;202;125;203m─\x1b[39m",
+            "\x1b[38;2;212;121;198m─\x1b[39m",
+            "\x1b[38;2;223;117;194m─\x1b[39m",
+            "\x1b[38;2;233;113;189m─\x1b[39m",
+            "\x1b[38;2;244;109;184m─\x1b[39m",
+            "\x1b[38;2;255;105;180m╮\x1b[39m",
+        );
+
+        let borderer = Borderer::new();
+        let mut output = Vec::new();
+
+        borderer.top(&mut output, 10).unwrap();
+
+        assert_eq!(String::from_utf8(output).unwrap(), expected_top);
+    }
+
+    #[test]
+    fn bottom_border_has_exact_layout_and_colors() {
+        let expected_bottom = concat!(
+            "\x1b[38;2;255;165;0m╰\x1b[39m",
+            "\x1b[38;2;241;168;12m─\x1b[39m",
+            "\x1b[38;2;227;171;25m─\x1b[39m",
+            "\x1b[38;2;213;174;38m─\x1b[39m",
+            "\x1b[38;2;199;177;50m─\x1b[39m",
+            "\x1b[38;2;185;180;63m─\x1b[39m",
+            "\x1b[38;2;171;183;76m─\x1b[39m",
+            "\x1b[38;2;157;186;89m─\x1b[39m",
+            "\x1b[38;2;143;190;101m─\x1b[39m",
+            "\x1b[38;2;129;193;114m─\x1b[39m",
+            "\x1b[38;2;115;196;127m \x1b[39m",
+            "\x1b[38;2;101;199;140m󰊠\x1b[39m",
+            "\x1b[38;2;87;202;152m \x1b[39m",
+            "\x1b[38;2;73;205;165m─\x1b[39m",
+            "\x1b[38;2;59;208;178m─\x1b[39m",
+            "\x1b[38;2;45;212;191m╯\x1b[39m",
+        );
+
+        let borderer = Borderer::new();
+        let mut output = Vec::new();
+
+        borderer.bottom(&mut output, 10).unwrap();
+
+        assert_eq!(String::from_utf8(output).unwrap(), expected_bottom);
+    }
+
+    #[test]
+    fn side_borders_have_exact_character_and_colors() {
+        let left_0_1 = "\x1b[38;2;96;165;250m│\x1b[39m";
+        let left_1_2 = "\x1b[38;2;255;165;0m│\x1b[39m";
+        let left_5_10 = "\x1b[38;2;184;165;111m│\x1b[39m";
+        let left_9_10 = "\x1b[38;2;255;165;0m│\x1b[39m";
+
+        let right_0_1 = "\x1b[38;2;255;105;180m│\x1b[39m";
+        let right_1_2 = "\x1b[38;2;45;212;191m│\x1b[39m";
+        let right_2_2 = "\x1b[38;2;0;255;202m│\x1b[39m";
+        let right_5_10 = "\x1b[38;2;138;164;186m│\x1b[39m";
+        let right_9_10 = "\x1b[38;2;45;212;191m│\x1b[39m";
+
+        let cases = [
+            (0, 0, left_0_1, right_0_1),
+            (0, 1, left_0_1, right_0_1),
+            (1, 2, left_1_2, right_1_2),
+            (5, 10, left_5_10, right_5_10),
+            (9, 10, left_9_10, right_9_10),
+            (2, 2, left_1_2, right_2_2),
+        ];
+
+        let borderer = Borderer::new();
+
+        for (index, height, expected_left, expected_right) in cases {
+            let mut left = Vec::new();
+            borderer.left(&mut left, index, height).unwrap();
+
+            assert_eq!(String::from_utf8(left).unwrap(), expected_left);
+
+            let mut right = Vec::new();
+            borderer.right(&mut right, index, height).unwrap();
+
+            assert_eq!(String::from_utf8(right).unwrap(), expected_right);
+        }
+    }
+
+    #[test]
+    fn width_one_border_has_exact_layout_and_colors() {
+        let expected_top = concat!(
+            "\x1b[38;2;96;165;250m╭\x1b[39m",
+            "\x1b[38;2;122;155;238m─\x1b[39m",
+            "\x1b[38;2;149;145;226m─\x1b[39m",
+            "\x1b[38;2;175;135;215m \x1b[39m",
+            "\x1b[38;2;202;125;203m󰮯\x1b[39m",
+            "\x1b[38;2;228;115;191m \x1b[39m",
+            "\x1b[38;2;255;105;180m╮\x1b[39m",
+        );
+
+        let expected_bottom = concat!(
+            "\x1b[38;2;255;165;0m╰\x1b[39m",
+            "\x1b[38;2;220;172;31m \x1b[39m",
+            "\x1b[38;2;185;180;63m󰊠\x1b[39m",
+            "\x1b[38;2;150;188;95m \x1b[39m",
+            "\x1b[38;2;115;196;127m─\x1b[39m",
+            "\x1b[38;2;80;204;159m─\x1b[39m",
+            "\x1b[38;2;45;212;191m╯\x1b[39m",
+        );
+
+        let borderer = Borderer::new();
+        let mut top = Vec::new();
+        let mut bottom = Vec::new();
+
+        borderer.top(&mut top, 1).unwrap();
+        borderer.bottom(&mut bottom, 1).unwrap();
+
+        assert_eq!(String::from_utf8(top).unwrap(), expected_top);
+        assert_eq!(String::from_utf8(bottom).unwrap(), expected_bottom);
     }
 }
