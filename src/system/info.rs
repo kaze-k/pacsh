@@ -1,4 +1,7 @@
-use nix::unistd::{self, User};
+use nix::{
+    sys::utsname,
+    unistd::{self, User},
+};
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
@@ -59,7 +62,7 @@ impl Info {
 
     pub(crate) fn os_name(&self) -> String {
         let Ok(file) = File::open("/etc/os-release") else {
-            return "unknown".to_string();
+            return self.get_sysname("unknown");
         };
 
         let mut reader = BufReader::new(file);
@@ -69,16 +72,22 @@ impl Info {
             line.clear();
 
             let Ok(bytes) = reader.read_line(&mut line) else {
-                return "unknown".to_string();
+                return self.get_sysname("unknown");
             };
 
             if bytes == 0 {
-                return "unknown".to_string();
+                return self.get_sysname("unknown");
             }
 
             if let Some(value) = line.strip_prefix("PRETTY_NAME=") {
                 return value.trim().trim_matches('"').to_string();
             }
         }
+    }
+
+    fn get_sysname(&self, fallback: &str) -> String {
+        utsname::uname()
+            .map(|info| info.sysname().to_string_lossy().into_owned())
+            .unwrap_or_else(|_| fallback.to_string())
     }
 }
