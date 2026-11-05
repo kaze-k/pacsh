@@ -63,21 +63,21 @@ impl Renderer {
         }
     }
 
-    pub(crate) fn render<M: Module>(&self, lines: Vec<M>) -> io::Result<()> {
+    pub(crate) fn render<M: Module>(&self, lines: &[M]) -> io::Result<()> {
         self.render_into(lines, &mut io::stdout().lock())
     }
 
     pub(crate) fn render_to<M: Module, W: Write>(
         &self,
-        lines: Vec<M>,
+        lines: &[M],
         mut output: W,
     ) -> io::Result<()> {
         self.render_into(lines, &mut output)
     }
 
-    fn render_into<M: Module, W: Write>(&self, lines: Vec<M>, output: &mut W) -> io::Result<()> {
-        let gap = self.gap(&lines);
-        let width = self.width(&lines, gap);
+    fn render_into<M: Module, W: Write>(&self, lines: &[M], output: &mut W) -> io::Result<()> {
+        let gap = self.gap(lines);
+        let width = self.width(lines, gap);
 
         let mut buffer = RenderBuffer::new();
 
@@ -280,7 +280,7 @@ mod tests {
 
         renderer
             .render_into(
-                vec![
+                &vec![
                     ModuleItem::Blank(Blank::new()),
                     ModuleItem::Access(Access::new(true)),
                     ModuleItem::Identity(Identity::new("user".to_string(), "host".to_string())),

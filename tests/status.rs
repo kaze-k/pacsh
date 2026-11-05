@@ -41,7 +41,7 @@ fn banner_rows(output: &Output) -> Vec<String> {
         .strip_prefix("\n\n")
         .and_then(|text| text.strip_suffix("\n\n"))
         .expect("banner should have two leading and trailing newlines");
-    let mut lines: Vec<_> = banner.lines().collect();
+    let mut lines: Vec<&str> = banner.lines().collect();
     assert!(lines.len() >= 2, "missing banner borders: {text:?}");
     let top = lines.remove(0);
     let bottom = lines.pop().unwrap();
@@ -55,7 +55,7 @@ fn banner_rows(output: &Output) -> Vec<String> {
                 .strip_prefix("    │")
                 .and_then(|line| line.strip_suffix('│'))
                 .expect("every banner row should have side borders");
-            content.split_whitespace().collect::<Vec<_>>().join(" ")
+            content.split_whitespace().collect::<Vec<&str>>().join(" ")
         })
         .collect()
 }

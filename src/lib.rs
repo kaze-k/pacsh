@@ -45,10 +45,10 @@ fn get_lines() -> Vec<ModuleItem> {
 
 pub fn run() -> io::Result<()> {
     let lines = get_lines();
-    Renderer::new().render(lines)
+    Renderer::new().render(&lines)
 }
 
 pub fn run_to<W: Write>(output: W) -> io::Result<()> {
     let lines = get_lines();
-    Renderer::new().render_to(lines, output)
+    Renderer::new().render_to(&lines, output)
 }
