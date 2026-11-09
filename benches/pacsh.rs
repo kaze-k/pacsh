@@ -1,6 +1,6 @@
 use std::env;
 use std::io;
-use std::process::{Command, ExitCode};
+use std::process::{Command, ExitCode, Stdio};
 
 const CLEAN_ARGS_ENV: &str = "PACSH_BENCH_CLEAN_ARGS";
 
@@ -29,13 +29,45 @@ fn main() -> ExitCode {
     ExitCode::SUCCESS
 }
 
-#[divan::bench]
+#[divan::bench(name = "1_run")]
 fn run() {
     pacsh::run().unwrap()
 }
 
-#[divan::bench]
+#[divan::bench(name = "2_run_to_sink")]
 fn run_to_sink() {
     let sink = io::sink();
     pacsh::run_to(sink).unwrap()
+}
+
+#[divan::bench(name = "3_execute")]
+fn execute() {
+    let status = Command::new(env!("CARGO_BIN_EXE_pacsh"))
+        .stdout(Stdio::null())
+        .status()
+        .expect("failed to run pacsh");
+
+    assert!(status.success());
+}
+
+#[divan::bench(name = "4_pacman")]
+fn pacman() {
+    let status = Command::new(env!("CARGO_BIN_EXE_pacsh"))
+        .arg("--pacman")
+        .stdout(Stdio::null())
+        .status()
+        .expect("failed to run pacsh --pacman");
+
+    assert!(status.success());
+}
+
+#[divan::bench(name = "5_help")]
+fn help() {
+    let status = Command::new(env!("CARGO_BIN_EXE_pacsh"))
+        .arg("--help")
+        .stdout(Stdio::null())
+        .status()
+        .expect("failed to run pacsh --help");
+
+    assert!(status.success());
 }
