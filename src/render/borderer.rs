@@ -1,5 +1,6 @@
 use std::io;
 
+use crate::args::Args;
 use crate::colors;
 use crate::constants::{Border, Color, Icon, Layout};
 use crate::utils;
@@ -14,10 +15,16 @@ impl Borderer {
     }
 
     pub(crate) fn top<W: io::Write>(&self, writer: &mut W, width: usize) -> io::Result<()> {
+        let icon = if Args::has_pacman() {
+            Icon::PACMAN
+        } else {
+            Icon::DOT
+        };
+
         let count = (width + Layout::PADDING)
             - 2
             - 1
-            - Icon::PACMAN
+            - icon
                 .width()
                 .expect("failed to get PACMAN icon width: width should be available")
             - 1;
@@ -26,7 +33,7 @@ impl Borderer {
             "{}{} {} {}{}",
             Border::TOP_LEFT,
             utils::repeat(Border::HORIZONTAL, 2),
-            Icon::PACMAN,
+            icon,
             utils::repeat(Border::HORIZONTAL, count),
             Border::TOP_RIGHT
         );
@@ -35,10 +42,16 @@ impl Borderer {
     }
 
     pub(crate) fn bottom<W: io::Write>(&self, writer: &mut W, width: usize) -> io::Result<()> {
+        let icon = if Args::has_pacman() {
+            Icon::GHOST
+        } else {
+            Icon::CIRCLE
+        };
+
         let count = (width + Layout::PADDING)
             - 2
             - 1
-            - Icon::GHOST
+            - icon
                 .width()
                 .expect("failed to get GHOST icon width: width should be available")
             - 1;
@@ -47,7 +60,7 @@ impl Borderer {
             "{}{} {} {}{}",
             Border::BOTTOM_LEFT,
             utils::repeat(Border::HORIZONTAL, count),
-            Icon::GHOST,
+            icon,
             utils::repeat(Border::HORIZONTAL, 2),
             Border::BOTTOM_RIGHT
         );
@@ -99,7 +112,7 @@ mod tests {
             "\x1b[38;2;106;161;245m─\x1b[39m",
             "\x1b[38;2;117;157;240m─\x1b[39m",
             "\x1b[38;2;127;153;236m \x1b[39m",
-            "\x1b[38;2;138;149;231m󰮯\x1b[39m",
+            "\x1b[38;2;138;149;231m●\x1b[39m",
             "\x1b[38;2;149;145;226m \x1b[39m",
             "\x1b[38;2;159;141;222m─\x1b[39m",
             "\x1b[38;2;170;137;217m─\x1b[39m",
@@ -135,7 +148,7 @@ mod tests {
             "\x1b[38;2;143;190;101m─\x1b[39m",
             "\x1b[38;2;129;193;114m─\x1b[39m",
             "\x1b[38;2;115;196;127m \x1b[39m",
-            "\x1b[38;2;101;199;140m󰊠\x1b[39m",
+            "\x1b[38;2;101;199;140m◉\x1b[39m",
             "\x1b[38;2;87;202;152m \x1b[39m",
             "\x1b[38;2;73;205;165m─\x1b[39m",
             "\x1b[38;2;59;208;178m─\x1b[39m",
@@ -194,7 +207,7 @@ mod tests {
             "\x1b[38;2;122;155;238m─\x1b[39m",
             "\x1b[38;2;149;145;226m─\x1b[39m",
             "\x1b[38;2;175;135;215m \x1b[39m",
-            "\x1b[38;2;202;125;203m󰮯\x1b[39m",
+            "\x1b[38;2;202;125;203m●\x1b[39m",
             "\x1b[38;2;228;115;191m \x1b[39m",
             "\x1b[38;2;255;105;180m╮\x1b[39m",
         );
@@ -202,7 +215,7 @@ mod tests {
         let expected_bottom = concat!(
             "\x1b[38;2;255;165;0m╰\x1b[39m",
             "\x1b[38;2;220;172;31m \x1b[39m",
-            "\x1b[38;2;185;180;63m󰊠\x1b[39m",
+            "\x1b[38;2;185;180;63m◉\x1b[39m",
             "\x1b[38;2;150;188;95m \x1b[39m",
             "\x1b[38;2;115;196;127m─\x1b[39m",
             "\x1b[38;2;80;204;159m─\x1b[39m",

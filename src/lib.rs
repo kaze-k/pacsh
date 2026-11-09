@@ -1,3 +1,4 @@
+mod args;
 mod colors;
 mod constants;
 mod modules;
@@ -11,6 +12,7 @@ mod tests;
 
 use std::io::{self, Write};
 
+use args::Args;
 use modules::{Access, Blank, From, Identity, ModuleItem, Os, Sessions, To, Tty};
 use render::Renderer;
 use system::{Info, Ssh};
@@ -44,11 +46,13 @@ fn get_lines() -> Vec<ModuleItem> {
 }
 
 pub fn run() -> io::Result<()> {
+    Args::parse();
     let lines = get_lines();
     Renderer::new().render(&lines)
 }
 
 pub fn run_to<W: Write>(output: W) -> io::Result<()> {
+    Args::parse();
     let lines = get_lines();
     Renderer::new().render_to(&lines, output)
 }

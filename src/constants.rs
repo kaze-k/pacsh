@@ -12,6 +12,9 @@ pub(crate) struct Icon;
 impl Icon {
     pub(crate) const PACMAN: char = '󰮯';
     pub(crate) const GHOST: char = '󰊠';
+
+    pub(crate) const DOT: char = '●';
+    pub(crate) const CIRCLE: char = '◉';
 }
 
 pub(crate) struct Color;

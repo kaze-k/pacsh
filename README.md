@@ -16,7 +16,7 @@ Display useful information when logging into your server through SSH, including 
 ## Example
 
 ```text
-╭── 󰮯 ───────────────────────────────────╮
+╭── ● ───────────────────────────────────╮
 │                                        │
 │    [ok]      SSH LOGIN SUCCESSFUL      │
 │    [ok]      SESSION kaze@kaze-arch    │
@@ -27,7 +27,7 @@ Display useful information when logging into your server through SSH, including 
 │    TO        192.168.10.5:22           │
 │    SESSIONS  2                         │
 │                                        │
-╰─────────────────────────────────── 󰊠 ──╯
+╰─────────────────────────────────── ◉ ──╯
 ```
 
 ## Information
@@ -55,6 +55,8 @@ Display useful information when logging into your server through SSH, including 
 
 ## Dependencies
 
+if use `--pacman`
+
 - [Nerd Fonts](https://www.nerdfonts.com/)
 
 ## Installation
@@ -77,7 +79,7 @@ Configure SSH to run pacsh on login by adding the following to /etc/ssh/sshrc:
 
 ```bash
 if [ -t 1 ]; then # Avoid running for non-interactive SSH sessions (e.g. stf)
-    pacsh
+    pacsh // or pacsh --pacman
 fi
 ```
 

@@ -1,10 +1,11 @@
-use nix::{
-    sys::utsname,
-    unistd::{self, User},
-};
 use std::{
     fs::File,
     io::{self, BufRead, BufReader},
+};
+
+use nix::{
+    sys::utsname,
+    unistd::{self, User},
 };
 
 pub(crate) struct Info;

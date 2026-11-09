@@ -130,9 +130,9 @@ impl Renderer {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use std::io::{self, Write};
 
+    use super::*;
     use crate::modules::{Access, Blank, From, Identity, ModuleItem, Os, Sessions, To, Tty};
 
     #[test]
@@ -239,7 +239,7 @@ mod tests {
     fn render_into_writes_expected_banner_and_styles() {
         let expected_render = concat!(
             "\n\n",
-            "    ╭── 󰮯 ─────────────────────────────────╮\n",
+            "    ╭── ● ─────────────────────────────────╮\n",
             "    │                                      │\n",
             "    │    [ok]      SSH LOGIN SUCCESSFUL    │\n",
             "    │    [ok]      SESSION user@host       │\n",
@@ -250,7 +250,7 @@ mod tests {
             "    │    TO        10.0.0.5:22             │\n",
             "    │    SESSIONS  2                       │\n",
             "    │                                      │\n",
-            "    ╰───────────────────────────────── 󰊠 ──╯\n",
+            "    ╰───────────────────────────────── ◉ ──╯\n",
             "\n",
         );
 
@@ -280,7 +280,7 @@ mod tests {
 
         renderer
             .render_into(
-                &vec![
+                &[
                     ModuleItem::Blank(Blank::new()),
                     ModuleItem::Access(Access::new(true)),
                     ModuleItem::Identity(Identity::new("user".to_string(), "host".to_string())),
@@ -306,37 +306,37 @@ mod tests {
             (
                 "top-right border",
                 "\x1b[38;2;255;105;180m╮\x1b[39m",
-                1055,
+                1054,
                 0,
             ),
             (
                 "bottom-left border",
                 "\x1b[38;2;255;165;0m╰\x1b[39m",
-                2195,
+                2194,
                 0,
             ),
             (
                 "bottom-right border",
                 "\x1b[38;2;45;212;191m╯\x1b[39m",
-                3211,
+                3209,
                 0,
             ),
-            ("access status", status_style, 1214, 0),
+            ("access status", status_style, 1213, 0),
             (
                 "success message",
                 "\x1b[97;1mSSH LOGIN SUCCESSFUL\x1b[0m",
-                1235,
+                1234,
                 0,
             ),
-            ("identity status", status_style, 1333, 1),
-            ("session label", "\x1b[37;1mSESSION\x1b[0m", 1354, 0),
-            ("username", "\x1b[38;2;255;165;0;1muser\x1b[0m", 1373, 0),
-            ("hostname", "\x1b[38;2;255;105;180;1mhost\x1b[0m", 1401, 0),
-            ("os label", "\x1b[96;1mOS        \x1b[0m", 1597, 0),
-            ("tty label", "\x1b[96;1mTTY       \x1b[0m", 1705, 0),
-            ("from label", "\x1b[96;1mFROM      \x1b[0m", 1812, 0),
-            ("to label", "\x1b[96;1mTO        \x1b[0m", 1919, 0),
-            ("sessions label", "\x1b[96;1mSESSIONS  \x1b[0m", 2025, 0),
+            ("identity status", status_style, 1332, 1),
+            ("session label", "\x1b[37;1mSESSION\x1b[0m", 1353, 0),
+            ("username", "\x1b[38;2;255;165;0;1muser\x1b[0m", 1372, 0),
+            ("hostname", "\x1b[38;2;255;105;180;1mhost\x1b[0m", 1400, 0),
+            ("os label", "\x1b[96;1mOS        \x1b[0m", 1596, 0),
+            ("tty label", "\x1b[96;1mTTY       \x1b[0m", 1704, 0),
+            ("from label", "\x1b[96;1mFROM      \x1b[0m", 1811, 0),
+            ("to label", "\x1b[96;1mTO        \x1b[0m", 1918, 0),
+            ("sessions label", "\x1b[96;1mSESSIONS  \x1b[0m", 2024, 0),
         ];
 
         for (name, style, expected_index, occurrence) in expected_styles {

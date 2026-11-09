@@ -1,5 +1,13 @@
 use std::process::{Command, Output, Stdio};
 
+const HELP_TEXT: &str = "\
+Usage: pacsh [OPTIONS]
+
+Options:
+      --pacman    Use pacman icon (requires Nerd Font)
+  -h, --help      Print help information
+";
+
 fn binary() -> Command {
     let mut command = Command::new(env!("CARGO_BIN_EXE_pacsh"));
     command
@@ -35,6 +43,10 @@ fn without_styles(text: &str) -> String {
 }
 
 fn banner_rows(output: &Output) -> Vec<String> {
+    banner_rows_with_icons(output, '●', '◉')
+}
+
+fn banner_rows_with_icons(output: &Output, top_icon: char, bottom_icon: char) -> Vec<String> {
     assert_success(output);
     let text = without_styles(std::str::from_utf8(&output.stdout).expect("UTF-8 banner"));
     let banner = text
@@ -45,8 +57,14 @@ fn banner_rows(output: &Output) -> Vec<String> {
     assert!(lines.len() >= 2, "missing banner borders: {text:?}");
     let top = lines.remove(0);
     let bottom = lines.pop().unwrap();
-    assert!(top.starts_with("    ╭── 󰮯 ") && top.ends_with('╮'));
-    assert!(bottom.starts_with("    ╰") && bottom.ends_with(" 󰊠 ──╯"));
+    assert!(
+        top.starts_with(&format!("    ╭── {top_icon} ")) && top.ends_with('╮'),
+        "unexpected top border: {top:?}"
+    );
+    assert!(
+        bottom.starts_with("    ╰") && bottom.ends_with(&format!(" {bottom_icon} ──╯")),
+        "unexpected bottom border: {bottom:?}"
+    );
 
     lines
         .into_iter()
@@ -108,8 +126,72 @@ fn binary_renders_non_ssh_banner_without_address_rows() {
 }
 
 #[test]
-fn lib_run_returns_success() {
-    let result = pacsh::run();
+fn binary_pacman_flag_uses_pacman_icon() {
+    let output = binary()
+        .arg("--pacman")
+        .output()
+        .expect("failed to execute pacsh with --pacman");
 
-    assert!(result.is_ok(), "pacsh::run() failed: {result:?}");
+    let rows = banner_rows_with_icons(&output, '󰮯', '󰊠');
+    assert_eq!(rows.len(), 8, "unexpected banner rows: {rows:?}");
+    assert_common_rows(&rows);
+}
+
+#[test]
+fn binary_help_flags_print_help_without_rendering_a_banner() {
+    for flag in ["--help", "-h"] {
+        let output = binary()
+            .arg(flag)
+            .output()
+            .unwrap_or_else(|_| panic!("failed to execute pacsh with {flag}"));
+
+        assert_eq!(output.status.code(), Some(0), "flag: {flag}");
+        assert_eq!(
+            String::from_utf8(output.stdout).expect("help output should be UTF-8"),
+            HELP_TEXT,
+            "flag: {flag}"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "flag: {flag}, stderr: {:?}",
+            output.stderr
+        );
+    }
+}
+
+#[test]
+fn binary_help_flag_takes_precedence_over_pacman() {
+    let output = binary()
+        .args(["--pacman", "--help"])
+        .output()
+        .expect("failed to execute pacsh with --pacman --help");
+
+    assert_eq!(output.status.code(), Some(0));
+    assert_eq!(
+        String::from_utf8(output.stdout).expect("help output should be UTF-8"),
+        HELP_TEXT
+    );
+    assert!(output.stderr.is_empty(), "stderr: {:?}", output.stderr);
+}
+
+#[test]
+fn binary_unknown_arguments_exit_with_usage_error() {
+    for arg in ["--unknown", "-x"] {
+        let output = binary()
+            .arg(arg)
+            .output()
+            .unwrap_or_else(|_| panic!("failed to execute pacsh with {arg}"));
+
+        assert_eq!(output.status.code(), Some(2), "arg: {arg}");
+        assert!(
+            output.stdout.is_empty(),
+            "arg: {arg}, stdout: {:?}",
+            output.stdout
+        );
+        assert_eq!(
+            String::from_utf8(output.stderr).expect("error output should be UTF-8"),
+            format!("Error: unknown argument '{arg}'\n{HELP_TEXT}"),
+            "arg: {arg}"
+        );
+    }
 }

@@ -1,5 +1,6 @@
-use super::{Access, Blank, From, Identity, Os, Sessions, To, Tty};
 use std::io;
+
+use super::{Access, Blank, From, Identity, Os, Sessions, To, Tty};
 
 pub(crate) trait Module {
     fn render<W: io::Write>(&self, writer: &mut W, gap: usize) -> io::Result<()>;
