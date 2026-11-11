@@ -138,6 +138,18 @@ fn binary_pacman_flag_uses_pacman_icon() {
 }
 
 #[test]
+fn binary_repeated_pacman_flag_uses_pacman_icon() {
+    let output = binary()
+        .args(["--pacman", "--pacman"])
+        .output()
+        .expect("failed to execute pacsh with repeated --pacman");
+
+    let rows = banner_rows_with_icons(&output, '󰮯', '󰊠');
+    assert_eq!(rows.len(), 8, "unexpected banner rows: {rows:?}");
+    assert_common_rows(&rows);
+}
+
+#[test]
 fn binary_help_flags_print_help_without_rendering_a_banner() {
     for flag in ["--help", "-h"] {
         let output = binary()
@@ -175,6 +187,32 @@ fn binary_help_flag_takes_precedence_over_pacman() {
 }
 
 #[test]
+fn binary_help_flag_takes_precedence_in_any_order() {
+    for args in [
+        ["--help", "--pacman"],
+        ["-h", "--pacman"],
+        ["--help", "--help"],
+    ] {
+        let output = binary()
+            .args(args)
+            .output()
+            .unwrap_or_else(|_| panic!("failed to execute pacsh with {args:?}"));
+
+        assert_eq!(output.status.code(), Some(0), "args: {args:?}");
+        assert_eq!(
+            String::from_utf8(output.stdout).expect("help output should be UTF-8"),
+            HELP_TEXT,
+            "args: {args:?}"
+        );
+        assert!(
+            output.stderr.is_empty(),
+            "args: {args:?}, stderr: {:?}",
+            output.stderr
+        );
+    }
+}
+
+#[test]
 fn binary_unknown_arguments_exit_with_usage_error() {
     for arg in ["--unknown", "-x"] {
         let output = binary()
@@ -192,6 +230,28 @@ fn binary_unknown_arguments_exit_with_usage_error() {
             String::from_utf8(output.stderr).expect("error output should be UTF-8"),
             format!("Error: unknown argument '{arg}'\n{HELP_TEXT}"),
             "arg: {arg}"
+        );
+    }
+}
+
+#[test]
+fn binary_unknown_arguments_take_precedence_over_help_and_pacman() {
+    for args in [["--pacman", "--unknown"], ["--help", "--unknown"]] {
+        let output = binary()
+            .args(args)
+            .output()
+            .unwrap_or_else(|_| panic!("failed to execute pacsh with {args:?}"));
+
+        assert_eq!(output.status.code(), Some(2), "args: {args:?}");
+        assert!(
+            output.stdout.is_empty(),
+            "args: {args:?}, stdout: {:?}",
+            output.stdout
+        );
+        assert_eq!(
+            String::from_utf8(output.stderr).expect("error output should be UTF-8"),
+            format!("Error: unknown argument '--unknown'\n{HELP_TEXT}"),
+            "args: {args:?}"
         );
     }
 }
