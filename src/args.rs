@@ -3,6 +3,8 @@ use std::io::{self, Write};
 use std::process;
 use std::sync::atomic::{AtomicBool, Ordering};
 
+use owo_colors::OwoColorize;
+
 static PACMAN: AtomicBool = AtomicBool::new(false);
 static HELP: AtomicBool = AtomicBool::new(false);
 
@@ -14,6 +16,7 @@ impl Args {
     const SHORT_HELP_ARG: &str = "-h";
 
     const HELP_TEXT: &[&str] = &[
+        "",
         "Usage: pacsh [OPTIONS]",
         "",
         "Options:",
@@ -65,7 +68,8 @@ impl Args {
 
         writeln!(
             writer,
-            "Error: unknown argument '{}'",
+            "{}: unknown argument '{}'",
+            "Error".red(),
             arg.to_string_lossy()
         )
         .ok();
@@ -112,6 +116,7 @@ mod tests {
     #[test]
     fn help_text_has_exact_content() {
         let expected: &[&str] = &[
+            "",
             "Usage: pacsh [OPTIONS]",
             "",
             "Options:",

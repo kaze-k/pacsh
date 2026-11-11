@@ -1,6 +1,8 @@
 use std::process::{Command, Output, Stdio};
 
-const HELP_TEXT: &str = "\
+use owo_colors::OwoColorize;
+
+const HELP_TEXT: &str = "\n\
 Usage: pacsh [OPTIONS]
 
 Options:
@@ -228,7 +230,7 @@ fn binary_unknown_arguments_exit_with_usage_error() {
         );
         assert_eq!(
             String::from_utf8(output.stderr).expect("error output should be UTF-8"),
-            format!("Error: unknown argument '{arg}'\n{HELP_TEXT}"),
+            format!("{}: unknown argument '{arg}'\n{HELP_TEXT}", "Error".red()),
             "arg: {arg}"
         );
     }
@@ -250,7 +252,10 @@ fn binary_unknown_arguments_take_precedence_over_help_and_pacman() {
         );
         assert_eq!(
             String::from_utf8(output.stderr).expect("error output should be UTF-8"),
-            format!("Error: unknown argument '--unknown'\n{HELP_TEXT}"),
+            format!(
+                "{}: unknown argument '--unknown'\n{HELP_TEXT}",
+                "Error".red()
+            ),
             "args: {args:?}"
         );
     }
